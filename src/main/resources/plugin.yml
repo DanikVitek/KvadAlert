@@ -1,0 +1,6 @@
+name: KvadAlert
+version: '${project.version}'
+main: com.batoni.kvadalert.KvadAlert
+api-version: 1.17
+prefix: KvadAlert
+authors: [ nobody_but_any, Danik_Vitek ]
