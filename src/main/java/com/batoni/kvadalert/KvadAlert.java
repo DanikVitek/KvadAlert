@@ -24,26 +24,34 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Objects;
 
 public final class KvadAlert extends JavaPlugin implements Listener {
 
     private GuildMessageChannel channel;
-    private Guild guild;
+
     private JDA api;
     private boolean channelRegistered;
 
-    public void setChannelRegistered(boolean channelRegistered) {this.channelRegistered = channelRegistered;}
-    public void setApi(JDA api) {this.api = api;}
+    public void setChannelRegistered(boolean channelRegistered) {
+        this.channelRegistered = channelRegistered;
+    }
+
+    public void setApi(JDA api) {
+        this.api = api;
+    }
+
     public void setChannel(GuildMessageChannel channel) {
         this.channel = channel;
     }
-    public void setGuild(Guild guild) {
-        this.guild = guild;
-    }
+
     public static @NotNull KvadAlert getInstance() {
         return JavaPlugin.getPlugin(KvadAlert.class);
     }
-    public boolean isChannelRegistered() {return channelRegistered;}
+
+    public boolean isChannelRegistered() {
+        return channelRegistered;
+    }
 
     @Override
     public void onEnable() {
@@ -52,33 +60,37 @@ public final class KvadAlert extends JavaPlugin implements Listener {
         setChannelRegistered(getConfig().getBoolean("registered"));
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        getCommand("registerdiscord").setExecutor(new RegisterDiscordCommand());
+        Objects.requireNonNull(getCommand("registerdiscord")).setExecutor(new RegisterDiscordCommand());
 
-        if (isChannelRegistered()){
+        if (isChannelRegistered()) {
             try {
                 api = JDABuilder
                         .create(getConfig().getString("bot-token"), GatewayIntent.GUILD_MESSAGES)
                         .addEventListeners(new DiscordBotListener())
                         .build();
-                channel = (GuildMessageChannel) api.getGuildChannelById(getConfig().getString("guild-channel-id"));
-            } catch (LoginException e){ e.printStackTrace();}
+                channel = (GuildMessageChannel) api.getGuildChannelById(
+                        Objects.requireNonNull(getConfig().getString("guild-channel-id"))
+                );
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         if (isChannelRegistered()) {
-        try {
-            var playerFace = requestPlayerFace(e.getPlayer());
-            String playerName = e.getPlayer().getName();
-            channel.sendMessage(playerName).addFile(playerFace);
-            } catch(IOException ex){
+            try {
+                var playerFace = requestPlayerFace(e.getPlayer());
+                String playerName = e.getPlayer().getName();
+                channel.sendMessage(playerName).addFile(playerFace.toByteArray(), playerName + ".png");
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    private ByteArrayOutputStream requestPlayerFace(@NotNull Player player) throws IOException {
+    private @NotNull ByteArrayOutputStream requestPlayerFace(@NotNull Player player) throws IOException {
         Connection.Response response = Jsoup
                 .connect("https://sessionserver.mojang.com/session/minecraft/profile/" + player.getUniqueId())
                 .method(Connection.Method.GET)

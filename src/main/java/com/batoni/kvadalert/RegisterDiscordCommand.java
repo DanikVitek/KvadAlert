@@ -16,20 +16,25 @@ import java.util.List;
 public class RegisterDiscordCommand implements CommandExecutor {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        var TOKEN = KvadAlert.getInstance().getConfig().getString("bot-token");
-        if(KvadAlert.getInstance().isChannelRegistered()){
+    public boolean onCommand(@NotNull CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             @NotNull String[] args) {
+        final var token = KvadAlert.getInstance().getConfig().getString("bot-token");
+        if (KvadAlert.getInstance().isChannelRegistered()) {
             sender.sendMessage("The channel is already registered!");
             return true;
         }
 
         try {
             var api = JDABuilder
-                    .create(TOKEN, GatewayIntent.GUILD_MESSAGES)
+                    .create(token, GatewayIntent.GUILD_MESSAGES)
                     .addEventListeners(new DiscordBotListener())
                     .build();
             KvadAlert.getInstance().setApi(api);
-        } catch (LoginException e) {e.printStackTrace();}
+        } catch (LoginException e) {
+            e.printStackTrace();
+        }
 
         return true;
     }
