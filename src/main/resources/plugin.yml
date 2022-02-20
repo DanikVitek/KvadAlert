@@ -4,3 +4,6 @@ main: com.batoni.kvadalert.KvadAlert
 api-version: 1.17
 prefix: KvadAlert
 authors: [ nobody_but_any, Danik_Vitek ]
+commands:
+  registerdiscord:
+    description: choose discord channel for pictures
